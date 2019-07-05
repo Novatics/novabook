@@ -3,16 +3,11 @@
 
 <!-- Create the editor container -->
 <div class="container">
-  <!-- Create the toolbar container -->
-  <div id="toolbar">
-    <button class="ql-bold">Bold</button>
-    <button class="ql-italic">Italic</button>
-  </div>
+  <button id="image-button">Image</button>
+  <button id="link-button">link</button>
 
-  <div id="editor" style="min-height: 600px">
-    <%= @page.content %>
+  <div id="editor" style="min-height: 600px" class="write">
   </div>
-
   <br>
 
   <button onClick="pudim()">Submit</button>
@@ -25,9 +20,79 @@
 
 <!-- Initialize Quill editor -->
 <script>
+  var toolbarOptions = [{ 'header': [1,3,4,false] }, 'bold', 'italic', { 'list': 'ordered'}]
+
+  let BlockEmbed = Quill.import('blots/block/embed');
+  let Inline = Quill.import('blots/inline');
+
+  class LinkBlot extends Inline {
+    static create(value) {
+      let node = super.create();
+      // Sanitize url value if desired
+      node.setAttribute('href', value);
+      // Okay to set other non-format related attributes
+      // These are invisible to Parchment so must be static
+      node.setAttribute('target', '_blank');
+      return node;
+    }
+
+    static formats(node) {
+      // We will only be called with a node already
+      // determined to be a Link blot, so we do
+      // not need to check ourselves
+      return node.getAttribute('href');
+    }
+  }
+  LinkBlot.blotName = 'link';
+  LinkBlot.tagName = 'a';
+
+  class ImageBlot extends BlockEmbed {
+    static create(value) {
+      let node = super.create();
+      node.setAttribute('alt', value.alt);
+      node.setAttribute('src', value.url);
+      return node;
+    }
+
+    static value(node) {
+      return {
+        alt: node.getAttribute('alt'),
+        url: node.getAttribute('src')
+      };
+    }
+  }
+  ImageBlot.blotName = 'image';
+  ImageBlot.tagName = 'img';
+
+  Quill.register(LinkBlot);
+  Quill.register(ImageBlot);
+
   var quill = new Quill('#editor', {
-    modules: { toolbar: '#toolbar' },
+    modules: { 
+      toolbar: toolbarOptions
+    },
     theme: 'snow'
+  });
+
+  window.onload = () => {
+    quill.setContents(<%= raw(@page.content) %>)
+  }
+
+  $("#image-button").click(() => {
+    let imageURL = prompt("image url:")
+
+    let range = quill.getSelection(true);
+    quill.insertText(range.index, '\n', Quill.sources.USER);
+    quill.insertEmbed(range.index + 1, 'image', {
+      alt: 'image 1',
+      url: imageURL
+    }, Quill.sources.USER);
+    quill.setSelection(range.index + 2, Quill.sources.SILENT);
+  })
+
+  $("#link-button").click(() => {
+    let value = prompt('Enter link URL');
+    quill.format('link', value);
   });
 
   function pudim() {

@@ -1,3 +1,5 @@
+<br />
+
 <link href="https://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
 
 <div class="container">
@@ -13,6 +15,51 @@
 
 <script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
 <script>
+  let BlockEmbed = Quill.import('blots/block/embed');
+  let Inline = Quill.import('blots/inline');
+
+  class LinkBlot extends Inline {
+    static create(value) {
+      let node = super.create();
+      // Sanitize url value if desired
+      node.setAttribute('href', value);
+      // Okay to set other non-format related attributes
+      // These are invisible to Parchment so must be static
+      node.setAttribute('target', '_blank');
+      return node;
+    }
+
+    static formats(node) {
+      // We will only be called with a node already
+      // determined to be a Link blot, so we do
+      // not need to check ourselves
+      return node.getAttribute('href');
+    }
+  }
+  LinkBlot.blotName = 'link';
+  LinkBlot.tagName = 'a';
+
+  class ImageBlot extends BlockEmbed {
+    static create(value) {
+      let node = super.create();
+      node.setAttribute('alt', value.alt);
+      node.setAttribute('src', value.url);
+      return node;
+    }
+
+    static value(node) {
+      return {
+        alt: node.getAttribute('alt'),
+        url: node.getAttribute('src')
+      };
+    }
+  }
+  ImageBlot.blotName = 'image';
+  ImageBlot.tagName = 'img';
+
+  Quill.register(LinkBlot);
+  Quill.register(ImageBlot);
+
   var quill = new Quill('#editor', {
     modules: { toolbar: '#toolbar' },
     readonly: true,
