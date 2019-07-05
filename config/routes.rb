@@ -1,3 +1,6 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  root 'notes#visitor'
+
+  get '/editor' => 'notes#editor'
+  post '/editor' => 'notes#update'
 end

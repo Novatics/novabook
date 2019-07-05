@@ -13,3 +13,18 @@
  *= require_tree .
  *= require_self
  */
+
+body {
+  font-family: "Roboto Slab"
+}
+
+.container {
+  width: 980px;
+  margin: 0 auto;
+  display: block;
+}
+
+#editor.read {
+  font-family: "Roboto Slab";
+  font-size: 18px;
+}

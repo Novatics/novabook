@@ -1,0 +1,45 @@
+<!-- Include Quill stylesheet -->
+<link href="https://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
+
+<!-- Create the editor container -->
+<div class="container">
+  <!-- Create the toolbar container -->
+  <div id="toolbar">
+    <button class="ql-bold">Bold</button>
+    <button class="ql-italic">Italic</button>
+  </div>
+
+  <div id="editor" style="min-height: 600px">
+    <%= @page.content %>
+  </div>
+
+  <br>
+
+  <button onClick="pudim()">Submit</button>
+</div>
+
+
+
+<!-- Include the Quill library -->
+<script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+  var quill = new Quill('#editor', {
+    modules: { toolbar: '#toolbar' },
+    theme: 'snow'
+  });
+
+  function pudim() {
+
+    fetch('/editor', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify({ content: JSON.stringify(quill.getContents()) }),
+    }).then( response => response )
+
+    
+  }
+</script>

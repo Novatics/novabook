@@ -1,0 +1,24 @@
+<link href="https://cdn.quilljs.com/1.0.0/quill.snow.css" rel="stylesheet">
+
+<div class="container">
+  <div id="toolbar">
+  </div>
+
+  <div id="editor" class="read">
+  </div>
+
+  <br>
+</div>
+
+
+<script src="https://cdn.quilljs.com/1.0.0/quill.js"></script>
+<script>
+  var quill = new Quill('#editor', {
+    modules: { toolbar: '#toolbar' },
+    readonly: true,
+  });
+
+  window.onload = () => {
+    quill.setContents(<%= raw(@page.content) %>)
+  }
+</script>
